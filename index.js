@@ -4,6 +4,16 @@ const serverless = require('serverless-http');
 const app = express();
 app.use(express.json()); 
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 let orders = {
   '1':     { orderId: '1', details: 'Order 1 details' },
   '2':     { orderId: '2', details: 'Order 2 details' },
@@ -64,8 +74,6 @@ app.get('/orders/:orderId', (req, res) => {
 
 // ✅ POST /orders
 app.post('/orders', (req, res) => {
-  console.log(req);
-  console.log(req.body);
   const { orderId, details } = req.body;
   if (!orderId || !details) {
     return res.status(400).json({ error: 'Missing orderId or details' });
